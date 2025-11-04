@@ -3,8 +3,8 @@
 
 **AI Educator | Tech Support Specialist | Tutorial Creator**
 
-📍 940 3rd Street S #205, Naples, FL 34102
-📞 (239) 595-6193
+📍 Address available upon request
+📞 Phone available upon request
 🌐 [mikemurphy.co](http://mikemurphy.co)
 🔗 [LinkedIn: mikemurphyco](https://linkedin.com/in/mikemurphyco)
 ✉ [mike@mikemurphy.co](mailto:mike@mikemurphy.co)
