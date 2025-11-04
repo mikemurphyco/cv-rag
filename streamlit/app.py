@@ -93,19 +93,19 @@ def main():
     webhook_url = os.getenv("N8N_WEBHOOK_URL")
 
     if not webhook_url:
-        st.error("  Configuration Error: N8N_WEBHOOK_URL not set in .env file")
+        st.error("ï¿½ Configuration Error: N8N_WEBHOOK_URL not set in .env file")
         st.info("Please set up your n8n workflow and add the webhook URL to .env")
         return
 
     # Sidebar with info and sample questions
     with st.sidebar:
-        st.header("=Ë About This Project")
+        st.header("=ï¿½ About This Project")
         st.markdown("""
         This is an AI-powered resume built using:
         - **RAG** (Retrieval-Augmented Generation)
-        - **PostgreSQL + pgvector** for semantic search
-        - **Ollama** (Llama 3) for LLM responses
-        - **n8n** for workflow orchestration
+        - **n8n AI/LangChain nodes** for the entire pipeline
+        - **PostgreSQL + pgvector** for vector search
+        - **Ollama** (nomic-embed-text + llama3.2) on VPS
         - **Streamlit** for this interface
 
         Built by Mike Murphy to demonstrate AI engineering skills.
@@ -113,7 +113,7 @@ def main():
 
         st.divider()
 
-        st.header("=¡ Sample Questions")
+        st.header("=ï¿½ Sample Questions")
         st.markdown("Click a question below to try it:")
 
         sample_questions = [
@@ -127,7 +127,7 @@ def main():
 
         selected_question = None
         for i, question in enumerate(sample_questions):
-            if st.button(f"=¬ {question}", key=f"sample_{i}", use_container_width=True):
+            if st.button(f"=ï¿½ {question}", key=f"sample_{i}", use_container_width=True):
                 selected_question = question
 
     # Main chat interface
@@ -155,14 +155,14 @@ def main():
 
                     # Show sources if available
                     if 'sources' in result:
-                        with st.expander("=Ú View Sources"):
+                        with st.expander("=ï¿½ View Sources"):
                             st.write(result['sources'])
         else:
             st.warning("Please enter a question or click a sample question.")
 
     # Download section
     st.divider()
-    st.subheader("=Ä Download Resume Materials")
+    st.subheader("=ï¿½ Download Resume Materials")
 
     col1, col2 = st.columns(2)
 
@@ -172,21 +172,21 @@ def main():
         if resume_pdf_path.exists():
             with open(resume_pdf_path, "rb") as pdf_file:
                 st.download_button(
-                    label="=å Download Resume (PDF)",
+                    label="=ï¿½ Download Resume (PDF)",
                     data=pdf_file,
                     file_name="Mike_Murphy_Resume.pdf",
                     mime="application/pdf",
                     use_container_width=True
                 )
         else:
-            st.info("=Ä PDF resume coming soon")
+            st.info("=ï¿½ PDF resume coming soon")
 
     with col2:
         cover_letter_path = Path(__file__).parent.parent / "docs" / "cover-letter_template.md"
         if cover_letter_path.exists():
             with open(cover_letter_path, "r") as cover_file:
                 st.download_button(
-                    label="=ç Download Cover Letter",
+                    label="=ï¿½ Download Cover Letter",
                     data=cover_file.read(),
                     file_name="Mike_Murphy_Cover_Letter.md",
                     mime="text/markdown",
@@ -202,8 +202,8 @@ def main():
 
         < [mikemurphy.co](https://mikemurphy.co) |
         = [LinkedIn](https://linkedin.com/in/mikemurphyco) |
-        =ú [YouTube](https://youtube.com/@mikemurphyco) |
-        =» [GitHub](https://github.com/mikemurphyco)
+        =ï¿½ [YouTube](https://youtube.com/@mikemurphyco) |
+        =ï¿½ [GitHub](https://github.com/mikemurphyco)
 
         *Built with Claude Code, n8n, PostgreSQL, Ollama, and Streamlit*
     """)

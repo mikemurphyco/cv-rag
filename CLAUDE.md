@@ -11,33 +11,42 @@ CV-RAG is an interactive Retrieval-Augmented Generation (RAG) system for Mike Mu
 ## Tech Stack
 
 - **Data Storage**: Neon Postgres with pgvector extension for vector embeddings
-- **Embedding Model**: `all-MiniLM-L6-v2` via sentence-transformers (384 dimensions, local inference)
-- **LLM**: Ollama `llama3:8b` running on Hostinger VPS KVM2 (8GB RAM, 2 vCPU)
-- **Workflow Automation**: n8n for orchestrating query processing and LLM generation
-- **Text Processing**: langchain RecursiveCharacterTextSplitter (500 char chunks, 50 char overlap)
+- **Embedding Model**: Ollama `nomic-embed-text` (optimized for embeddings, running on VPS)
+- **LLM**: Ollama `llama3.2:latest` running on Hostinger VPS KVM2 (8GB RAM, 2 vCPU)
+- **Workflow Automation**: n8n with AI/LangChain nodes (complete RAG system built in n8n)
+- **Text Processing**: n8n Recursive Character Text Splitter node (500 char chunks, 50 char overlap)
 - **Frontend**: Streamlit with custom CSS and sample question buttons
-- **Development**: Python 3.11+, psycopg2 for database, python-dotenv for config
+- **Development**: n8n-native workflows (minimal Python), Streamlit for UI
 - **Infrastructure**: Self-hosted on Hostinger VPS (n8n + Ollama), Neon Postgres (cloud), Streamlit Cloud/VPS
 
 ## Architecture
 
 ### RAG Pipeline Flow
-1. **Document Ingestion**: Resume and supplemental docs are chunked into 200-500 word segments
-2. **Embedding**: Chunks are converted to vector embeddings using sentence-transformers
-3. **Storage**: Embeddings stored in Neon Postgres with pgvector extension
-4. **Query Processing**:
-   - User query → n8n webhook trigger
-   - Vector search in Postgres (cosine similarity)
-   - Top relevant chunks retrieved
-   - Ollama generates response with context
-5. **Response**: Streamlit frontend displays LLM-generated answer
+
+**Two n8n Workflows:**
+
+**Workflow 1: Document Ingestion (One-Time Setup)**
+1. n8n webhook receives document path
+2. Read File node loads markdown
+3. Recursive Text Splitter node chunks text (500 chars, 50 overlap)
+4. Embeddings Ollama node converts chunks to vectors (nomic-embed-text)
+5. Postgres Vector Store node inserts into Neon database
+
+**Workflow 2: Query Pipeline (Runtime)**
+1. User query → n8n webhook trigger
+2. Embeddings Ollama node converts query to vector
+3. Postgres Vector Store node retrieves top 3 similar chunks
+4. Format Context node builds LLM prompt with retrieved chunks
+5. Ollama Chat Model node generates answer (llama3.2:latest)
+6. Response returned to Streamlit frontend
 
 ### Key Components
 
 **scripts/**
-- `chunker.py`: Splits markdown documents into chunks for embedding
-- `embedder.py`: Generates embeddings and inserts into Postgres
-- `query.py`: Tests query workflow via n8n webhook
+- ~~`chunker.py`~~: (Deprecated - now handled by n8n Text Splitter node)
+- ~~`embedder.py`~~: (Deprecated - now handled by n8n Embeddings Ollama node)
+- ~~`embedding_service.py`~~: (Deprecated - n8n calls Ollama directly)
+- `test_workflow.py`: Test suite for the n8n RAG pipeline
 
 **streamlit/**
 - `app.py`: Chat interface with sample questions and resume download link
@@ -47,8 +56,13 @@ CV-RAG is an interactive Retrieval-Augmented Generation (RAG) system for Mike Mu
 - `supplemental.md`: Additional info (YouTube tutorials, courses, skills stories)
 - `cover-letter_template.md`: Cover letter template
 
-**n8n/** (planned)
-- Workflow JSON exports for query orchestration
+**n8n/**
+- `workflow-1-document-ingestion.json`: n8n workflow for ingesting and chunking documents
+- `workflow-2-query-pipeline.json`: n8n workflow for handling user queries
+- `N8N_NATIVE_SETUP.md`: **START HERE** - Complete setup guide for n8n-native RAG system
+- `README.md`: Legacy documentation (older Python-based approach)
+- `QUICKSTART.md`: Legacy quick start guide
+- `ARCHITECTURE.md`: Legacy architecture documentation
 
 ## Development Setup
 
@@ -73,6 +87,7 @@ pip install -r requirements.txt
 - `requests==2.32.3` - HTTP requests to n8n webhooks
 - `streamlit==1.40.2` - Web UI framework
 - `pandas==2.2.3` - Data handling utilities
+- `flask==3.0.0` - Embedding service HTTP server
 
 ### Database Setup
 ```sql
@@ -121,7 +136,7 @@ streamlit run streamlit/app.py
 docker run -d -p 11434:11434 --name ollama ollama/ollama
 
 # Pull Llama 3 model
-docker exec ollama ollama pull llama3:8b
+docker exec ollama ollama pull llama3.2:latest
 
 # Test API
 curl http://your-vps-ip:11434/api/generate \
@@ -188,7 +203,7 @@ CREATE TABLE cv_chunks (
 2. Embedding Service - Generates query embedding (use HTTP Request to local model or OpenAI API)
 3. Postgres Vector Search - Finds top 3 similar chunks
 4. Context Formatter - Combines chunks into prompt context
-5. Ollama Node - Generates answer with llama3:8b
+5. Ollama Node - Generates answer with llama3.2:latest
 6. Respond to Webhook - Returns JSON with 'answer' field
 
 **Critical SQL query for node 3:**

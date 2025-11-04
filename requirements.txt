@@ -24,5 +24,8 @@ streamlit==1.40.2
 # Data handling
 pandas==2.2.3
 
+# Flask for embedding service
+flask==3.0.0
+
 # Optional: For future API-based embeddings
 # openai==1.57.4

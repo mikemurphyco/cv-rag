@@ -120,7 +120,7 @@ LIMIT 3;
 
 **Node 6: Ollama**
 - Base URL: `http://your-vps-ip:11434`
-- Model: `llama3:8b`
+- Model: `llama3.2:latest`
 - Prompt template:
 ```
 You are an AI assistant answering questions about Mike Murphy's resume and experience.
