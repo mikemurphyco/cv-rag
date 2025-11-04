@@ -20,6 +20,7 @@ env/
 data/
 *.json
 !package.json
+!n8n/workflow-*.json
 
 # Streamlit cache
 .streamlit/
