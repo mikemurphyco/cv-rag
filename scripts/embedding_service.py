@@ -1,11 +1,25 @@
 """
+⚠️ DEPRECATED - This service is no longer used in the n8n-native approach.
+
 Embedding Service for CV-RAG
 ============================
 
 Flask HTTP server that generates 384-dimensional embeddings using
 the sentence-transformers 'all-MiniLM-L6-v2' model.
 
-This service is called by the n8n workflow to convert user queries
+DEPRECATION NOTICE:
+-------------------
+This Flask service is no longer needed. The n8n-native approach uses:
+- Ollama's nomic-embed-text model (768-dim embeddings)
+- n8n "Embeddings Ollama" node (calls Ollama API directly)
+
+No separate embedding service required!
+
+This file is kept for reference only.
+
+For the current implementation, see: n8n/README.md
+
+This service was called by the n8n workflow to convert user queries
 into vector embeddings for semantic search.
 
 Usage:

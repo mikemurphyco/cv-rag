@@ -1,31 +1,27 @@
-# Core dependencies for CV-RAG project
-# Python 3.11+ recommended
+# CV-RAG Dependencies (n8n-Native Approach)
+# ===========================================
 
-# Text processing and chunking
-langchain==0.3.7
-langchain-text-splitters==0.3.2
-
-# Embeddings (local model)
-sentence-transformers==3.3.1
-
-# Database connectivity
-psycopg2-binary==2.9.10
-pgvector==0.3.6
-
-# Environment variables
+# REQUIRED - Streamlit frontend
+streamlit==1.40.2
+pandas==2.2.3
+requests==2.32.3
 python-dotenv==1.0.1
 
-# API requests (for n8n webhooks)
-requests==2.32.3
+# DEPRECATED - No longer needed for n8n-native approach
+# These were used in the old Python-based implementation
+# Kept in file for reference, but not needed to install
+#
+# langchain==0.3.7                  # Replaced by n8n LangChain nodes
+# langchain-text-splitters==0.3.2   # Replaced by n8n Recursive Text Splitter node
+# sentence-transformers==3.3.1      # Replaced by Ollama nomic-embed-text
+# psycopg2-binary==2.9.10           # Replaced by n8n Postgres Vector Store node
+# pgvector==0.3.6                   # Replaced by n8n Postgres Vector Store node
+# flask==3.0.0                      # Replaced by n8n calling Ollama directly
 
-# Streamlit frontend
-streamlit==1.40.2
-
-# Data handling
-pandas==2.2.3
-
-# Flask for embedding service
-flask==3.0.0
-
-# Optional: For future API-based embeddings
-# openai==1.57.4
+# NOTE: For the n8n-native approach, the heavy lifting happens in n8n workflows:
+# - Document chunking: n8n Recursive Text Splitter node
+# - Embeddings: n8n Embeddings Ollama node (calls VPS Ollama API)
+# - Vector storage: n8n Postgres Vector Store node
+# - LLM generation: n8n Ollama Chat Model node
+#
+# Python is only used for the Streamlit frontend and optional testing scripts.

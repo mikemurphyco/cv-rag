@@ -1,8 +1,19 @@
 """
+⚠️ DEPRECATED - This script is no longer used in the n8n-native approach.
+
 CV-RAG Document Chunker
 ========================
 This script reads resume and supplemental documents, splits them into
 semantically meaningful chunks, and saves them for embedding.
+
+DEPRECATION NOTICE:
+-------------------
+This functionality is now handled by the n8n "Recursive Text Splitter" node
+in workflow-1-document-ingestion.json.
+
+This file is kept for reference only.
+
+For the current implementation, see: n8n/README.md
 
 Author: Mike Murphy
 Project: CV-RAG

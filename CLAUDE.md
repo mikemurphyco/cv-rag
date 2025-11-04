@@ -57,12 +57,10 @@ CV-RAG is an interactive Retrieval-Augmented Generation (RAG) system for Mike Mu
 - `cover-letter_template.md`: Cover letter template
 
 **n8n/**
+- `README.md`: **START HERE** - Complete setup guide for n8n-native RAG system
 - `workflow-1-document-ingestion.json`: n8n workflow for ingesting and chunking documents
 - `workflow-2-query-pipeline.json`: n8n workflow for handling user queries
-- `N8N_NATIVE_SETUP.md`: **START HERE** - Complete setup guide for n8n-native RAG system
-- `README.md`: Legacy documentation (older Python-based approach)
-- `QUICKSTART.md`: Legacy quick start guide
-- `ARCHITECTURE.md`: Legacy architecture documentation
+- `archive/`: Deprecated Python-based approach documentation (kept for reference)
 
 ## Development Setup
 
@@ -78,28 +76,25 @@ pip install -r requirements.txt
 ```
 
 ### Actual Dependencies (from requirements.txt)
-- `langchain==0.3.7` - Text splitting utilities
-- `langchain-text-splitters==0.3.2` - RecursiveCharacterTextSplitter
-- `sentence-transformers==3.3.1` - all-MiniLM-L6-v2 embedding model
-- `psycopg2-binary==2.9.10` - PostgreSQL database adapter
-- `pgvector==0.3.6` - Vector similarity operations
-- `python-dotenv==1.0.1` - Environment variable management
-- `requests==2.32.3` - HTTP requests to n8n webhooks
 - `streamlit==1.40.2` - Web UI framework
-- `pandas==2.2.3` - Data handling utilities
-- `flask==3.0.0` - Embedding service HTTP server
+- `requests==2.32.3` - HTTP requests to n8n webhooks
+- `python-dotenv==1.0.1` - Environment variable management
+- `pandas==2.2.3` - Data handling utilities (for Streamlit)
+
+**Deprecated (for old Python-based approach):**
+- `langchain==0.3.7` - No longer needed (n8n has built-in nodes)
+- `sentence-transformers==3.3.1` - Replaced by Ollama nomic-embed-text
+- `psycopg2-binary==2.9.10` - No longer needed (n8n handles database)
+- `pgvector==0.3.6` - No longer needed (n8n handles vectors)
+- `flask==3.0.0` - No longer needed (n8n calls Ollama directly)
 
 ### Database Setup
 ```sql
 -- Enable pgvector extension in Neon Postgres
-CREATE EXTENSION vector;
+CREATE EXTENSION IF NOT EXISTS vector;
 
--- Create documents table (adjust dimension for your embedder)
-CREATE TABLE documents (
-    id SERIAL PRIMARY KEY,
-    content TEXT,
-    embedding VECTOR(384)
-);
+-- Table is automatically created by n8n Postgres Vector Store node
+-- No manual table creation needed!
 ```
 
 ### Environment Variables
@@ -108,40 +103,49 @@ Create a `.env` file (not committed) with:
 - `OLLAMA_API_URL`: VPS Ollama endpoint (e.g., http://your-vps-ip:11434)
 - `N8N_WEBHOOK_URL`: n8n query webhook endpoint
 
-## Running the Application
+## Running the Application (n8n-Native Approach)
 
-### Process Documents
+### 1. Set up Ollama on VPS
 ```bash
-# Chunk documents into segments
-python scripts/chunker.py
+# Pull required models
+ssh root@your-vps-ip
+ollama pull nomic-embed-text  # For embeddings
+ollama pull llama3.2:latest   # For chat
 
-# Generate embeddings and store in database
-python scripts/embedder.py
+# Verify models
+ollama list
 ```
 
-### Test Queries
+### 2. Import n8n Workflows
+1. Open n8n at `https://flow.imurph.com`
+2. Import `n8n/workflow-1-document-ingestion.json`
+3. Import `n8n/workflow-2-query-pipeline.json`
+4. Configure Postgres credentials in both workflows
+5. Update Ollama base URLs to your VPS IP
+6. Activate both workflows
+
+### 3. Ingest Documents
 ```bash
-# Test query workflow
-python scripts/query.py
+# Trigger workflow 1 to process your resume
+curl -X POST https://flow.imurph.com/webhook/ingest-resume \
+  -H "Content-Type: application/json" \
+  -d '{"file_path": "/path/to/docs/cv_mike-murphy.md"}'
 ```
 
-### Run Streamlit Frontend
+### 4. Run Streamlit Frontend
 ```bash
 streamlit run streamlit/app.py
 ```
 
-### Ollama on VPS (Docker)
+### 5. Test the Pipeline
 ```bash
-# Run Ollama container
-docker run -d -p 11434:11434 --name ollama ollama/ollama
-
-# Pull Llama 3 model
-docker exec ollama ollama pull llama3.2:latest
-
-# Test API
-curl http://your-vps-ip:11434/api/generate \
-  -d '{"model": "llama3", "prompt": "Hello"}'
+# Query your resume
+curl -X POST https://flow.imurph.com/webhook/cv-rag-query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What are Mikes skills?"}'
 ```
+
+**See `n8n/README.md` for complete setup instructions.**
 
 ## Development Phases
 
@@ -152,43 +156,40 @@ The project follows a 5-phase roadmap (see sandbox/roadmap.md):
 4. **Frontend**: Streamlit chat interface
 5. **Polish & Deployment**: Error handling, testing, deployment
 
-**Current status**: Phase 2/3 complete - All scripts implemented, ready for database setup and n8n workflow configuration
+**Current status**: Phase 3 - n8n workflows created, ready for import and testing
 
-## Implementation Details
+## Implementation Details (n8n-Native Approach)
 
-### Chunking (scripts/chunker.py)
-- Uses `RecursiveCharacterTextSplitter` with 500 char chunks, 50 char overlap
-- Separators: `["\n\n", "\n", ". ", " "]` (preserves semantic boundaries)
-- Processes `docs/cv_mike-murphy.md` and `docs/supplemental.md`
-- Outputs to `data/chunks.json` with metadata (source, chunk_index, total_chunks)
-- Expected output: ~25-30 chunks total
+### Workflow 1: Document Ingestion
+**Handled entirely by n8n nodes:**
+1. **Webhook** - Receives document path
+2. **Read File** - Loads markdown content
+3. **Recursive Text Splitter** - Chunks text (500 chars, 50 overlap)
+4. **Embeddings Ollama** - Generates vectors using `nomic-embed-text`
+5. **Postgres Vector Store** - Inserts into Neon database
 
-### Embedding (scripts/embedder.py)
-- Model: `all-MiniLM-L6-v2` (384-dimensional vectors)
-- Batch encoding for efficiency (shows progress bar)
-- Creates `cv_chunks` table with pgvector extension
-- Vector index: `ivfflat` with cosine similarity (`vector_cosine_ops`)
-- Index parameter: `lists = 10` (optimized for <100 chunks)
+**No Python scripts needed!** All chunking and embedding happens in n8n.
 
-### Database Schema (docs/setup_database.sql)
-```sql
-CREATE TABLE cv_chunks (
-    id SERIAL PRIMARY KEY,
-    chunk_id VARCHAR(100) UNIQUE NOT NULL,
-    content TEXT NOT NULL,
-    source VARCHAR(50) NOT NULL,  -- 'resume' or 'supplemental'
-    chunk_index INTEGER,
-    total_chunks INTEGER,
-    embedding VECTOR(384),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+### Workflow 2: Query Pipeline
+**Complete RAG pipeline in n8n:**
+1. **Webhook** - Receives user query
+2. **Embeddings Ollama** - Converts query to vector
+3. **Postgres Vector Store** - Retrieves top 3 similar chunks
+4. **Code Node** - Formats context for LLM
+5. **Ollama Chat Model** - Generates answer using `llama3.2:latest`
+6. **Respond to Webhook** - Returns JSON response
 
-### Query Testing (scripts/query.py)
-- **Direct mode**: Tests vector search without LLM (for debugging)
-- **n8n mode**: Tests full RAG pipeline with Ollama
-- **Interactive mode**: Manual query testing
-- Returns top 3 chunks by cosine similarity
+### Database
+**Auto-created by n8n:**
+- Table: `cv_chunks` (created automatically by Postgres Vector Store node)
+- Embeddings: 768-dimensional vectors (nomic-embed-text default)
+- Index: Automatically managed by n8n
+
+### Embedding Model
+- **Model**: Ollama `nomic-embed-text` (optimized for RAG)
+- **Dimension**: 768 (default for nomic-embed-text)
+- **Location**: Self-hosted on VPS
+- **No local embedding service needed** - n8n calls Ollama directly
 
 ### Streamlit App (streamlit/app.py)
 - 6 pre-configured sample questions for demo video
@@ -197,75 +198,84 @@ CREATE TABLE cv_chunks (
 - Error handling for missing webhook configuration
 - Footer with social links and tech attribution
 
-### n8n Workflow Configuration
-**Required nodes:**
-1. Webhook (POST) - Receives query
-2. Embedding Service - Generates query embedding (use HTTP Request to local model or OpenAI API)
-3. Postgres Vector Search - Finds top 3 similar chunks
-4. Context Formatter - Combines chunks into prompt context
-5. Ollama Node - Generates answer with llama3.2:latest
-6. Respond to Webhook - Returns JSON with 'answer' field
+### n8n Workflow Nodes (Already Configured in JSON Files)
+**Workflow 1 (Ingestion):**
+1. Webhook - Trigger ingestion
+2. Read Binary File - Load markdown
+3. Extract from File - Convert to text
+4. Recursive Text Splitter - Chunk text (n8n LangChain node)
+5. Embeddings Ollama - Generate vectors (n8n AI node)
+6. Postgres Vector Store - Insert chunks (n8n LangChain node)
 
-**Critical SQL query for node 3:**
-```sql
-SELECT content, source,
-       1 - (embedding <=> $1::vector) AS similarity
-FROM cv_chunks
-ORDER BY embedding <=> $1::vector
-LIMIT 3;
-```
+**Workflow 2 (Query):**
+1. Webhook - Receive query
+2. Embeddings Ollama - Convert query to vector (n8n AI node)
+3. Postgres Vector Store - Retrieve similar chunks (n8n LangChain node)
+4. Code - Format context
+5. Ollama Chat Model - Generate answer (n8n AI node)
+6. Respond to Webhook - Return JSON
+
+**No manual SQL needed** - the Postgres Vector Store node handles all vector operations!
 
 ## Important Notes
 
 - **Security**: `.env` file is gitignored - never commit secrets
 - **Data Privacy**: Resume content is public, but connection strings are secret
 - **Chunking Strategy**: 500 chars balances context vs. precision for small resume corpus
-- **Vector Dimension**: Must match across embedding model (384), Postgres schema, and n8n
-- **n8n Workflow**: Can be exported to `n8n/cv-rag-workflow.json` for version control (remove sensitive data first)
-- **Ollama Setup**: See `docs/OLLAMA_SETUP.md` for VPS installation with external access configuration
-- **Quick Start**: See `QUICKSTART.md` for 30-minute setup guide
+- **Vector Dimension**: 768 (nomic-embed-text default) - automatically handled by n8n
+- **n8n Workflows**: Two separate workflows for ingestion and querying
+- **Ollama Models**: Both `nomic-embed-text` and `llama3.2:latest` must be installed on VPS
+- **Setup Guide**: See `n8n/README.md` for complete n8n-native setup instructions
 
 ## Files Reference
 
-- `QUICKSTART.md` - Step-by-step setup (start here!)
-- `docs/OLLAMA_SETUP.md` - VPS installation guide with firewall config
-- `docs/setup_database.sql` - Copy-paste database schema for Neon console
+- `n8n/README.md` - **START HERE** - Complete n8n-native setup guide
+- `n8n/workflow-1-document-ingestion.json` - Import this into n8n
+- `n8n/workflow-2-query-pipeline.json` - Import this into n8n
+- `n8n/archive/` - Old Python-based approach (deprecated)
 - `.env.example` - Template for environment variables
-- `requirements.txt` - Pinned dependency versions
+- `requirements.txt` - Minimal dependencies (mostly Streamlit)
 - `.gitignore` - Protects secrets and generated data files
 
 ## Next Steps After Setup
 
-1. Install dependencies: `pip install -r requirements.txt`
-2. Copy `.env.example` to `.env` and configure
-3. Set up database: Run `docs/setup_database.sql` in Neon console
-4. Process documents: `python scripts/chunker.py && python scripts/embedder.py`
-5. Install Ollama on VPS: Follow `docs/OLLAMA_SETUP.md`
-6. Build n8n workflow (see Implementation Details above)
-7. Test pipeline: `python scripts/query.py`
-8. Launch Streamlit: `streamlit run streamlit/app.py`
-9. Record demo video for job applications
-10. Deploy to Streamlit Cloud and update README with live link
+**Follow the guide in `n8n/README.md` for complete setup. Quick overview:**
+
+1. Pull Ollama models on VPS: `ollama pull nomic-embed-text` and `ollama pull llama3.2:latest`
+2. Import both n8n workflows from `n8n/` directory
+3. Configure Postgres credentials in n8n
+4. Update Ollama base URLs in workflow nodes
+5. Activate both workflows
+6. Test ingestion workflow with your resume
+7. Test query workflow with sample questions
+8. Configure `.env` with n8n webhook URL
+9. Launch Streamlit: `streamlit run streamlit/app.py`
+10. Record demo video and deploy to production
 
 ## Troubleshooting Common Issues
 
-**Import Error: `langchain_text_splitters`**
-- Ensure `langchain-text-splitters==0.3.2` is installed
-- Activate virtual environment first
+**n8n Workflow Fails - "Model not found"**
+- Ensure both Ollama models are installed: `ollama list` on VPS
+- Pull missing models: `ollama pull nomic-embed-text` and `ollama pull llama3.2:latest`
 
-**Database Connection Fails**
-- Verify Neon connection string includes `?sslmode=require`
-- Check database isn't suspended (free tier limitation)
+**n8n Workflow Fails - Postgres Connection**
+- Verify Neon credentials in n8n are correct
+- Check SSL is enabled in Postgres credential settings
+- Ensure pgvector extension is enabled: `CREATE EXTENSION IF NOT EXISTS vector;`
 
-**Ollama Timeout**
-- Verify Ollama is running: `ssh root@vps "systemctl status ollama"`
-- Test external access: `curl http://vps-ip:11434`
-- Check firewall: `sudo ufw status`
+**Ollama Timeout in n8n**
+- Verify Ollama is running on VPS: `ssh root@vps "curl http://localhost:11434/api/tags"`
+- Check firewall allows port 11434: `sudo ufw allow 11434`
+- Update base URL in n8n Ollama nodes to match your VPS IP
 
-**Streamlit 404 on Webhook**
-- Ensure n8n workflow is active (not paused)
-- Verify `N8N_WEBHOOK_URL` in `.env` matches n8n webhook node URL
-- Test webhook directly: `curl -X POST <webhook-url> -d '{"query":"test"}'`
+**Streamlit Can't Connect to n8n**
+- Ensure both n8n workflows are active (not paused)
+- Verify `N8N_WEBHOOK_URL` in `.env` matches workflow 2 webhook URL
+- Test webhook directly: `curl -X POST <webhook-url> -H "Content-Type: application/json" -d '{"query":"test"}'`
+
+**No AI Nodes in n8n**
+- Update n8n to latest version: `docker pull n8nio/n8n:latest` or `npm update -g n8n`
+- Look for "Embeddings Ollama" and "Ollama Chat Model" nodes
 
 ## Future Enhancements
 

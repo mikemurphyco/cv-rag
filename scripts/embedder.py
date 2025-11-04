@@ -1,8 +1,22 @@
 """
+⚠️ DEPRECATED - This script is no longer used in the n8n-native approach.
+
 CV-RAG Embedder & Database Storage
 ===================================
 This script generates vector embeddings for document chunks and stores them
 in Neon Postgres with pgvector extension.
+
+DEPRECATION NOTICE:
+-------------------
+This functionality is now handled by n8n AI nodes:
+- "Embeddings Ollama" node (using nomic-embed-text model)
+- "Postgres Vector Store" node (for database insertion)
+
+See workflow-1-document-ingestion.json for the current implementation.
+
+This file is kept for reference only.
+
+For the current implementation, see: n8n/README.md
 
 Author: Mike Murphy
 Project: CV-RAG
