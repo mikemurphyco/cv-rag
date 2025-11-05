@@ -1,0 +1,191 @@
+{
+  "name": "CV-RAG: Query Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cv-rag-query",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-query",
+      "name": "Webhook - Receive Query",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 400],
+      "webhookId": "cv-rag-query"
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text",
+        "options": {
+          "baseUrl": "={{ $env.OLLAMA_API_URL || 'http://localhost:11434' }}"
+        }
+      },
+      "id": "embeddings-query",
+      "name": "Embeddings Ollama - Query",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [460, 400],
+      "notes": "Convert user query to embedding vector"
+    },
+    {
+      "parameters": {
+        "operation": "retrieve",
+        "prompt": "={{ $json.body.query }}",
+        "topK": 3,
+        "options": {}
+      },
+      "id": "pgvector-retrieve",
+      "name": "Postgres Vector Store - Retrieve",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePostgres",
+      "typeVersion": 1,
+      "position": [680, 400],
+      "credentials": {
+        "postgres": {
+          "id": "NEON_POSTGRES_CREDENTIALS_ID",
+          "name": "Neon Postgres"
+        }
+      },
+      "notes": "Retrieve top 3 similar chunks from vector database"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract query and retrieved chunks\nconst query = $node['Webhook - Receive Query'].json.body.query;\nconst chunks = $input.all();\n\n// Format context from retrieved chunks\nconst context = chunks.map((item, idx) => {\n  return `[Chunk ${idx + 1}]\\n${item.json.pageContent || item.json.content}`;\n}).join('\\n\\n---\\n\\n');\n\n// Build prompts\nconst systemPrompt = `You are an AI assistant helping users learn about Mike Murphy's professional background, skills, and experience. Answer questions based ONLY on the provided context from his resume and supplemental materials. Be specific, professional, and cite relevant details.`;\n\nconst userPrompt = `Context from Mike's Resume:\\n\\n${context}\\n\\n---\\n\\nQuestion: ${query}\\n\\nPlease provide a detailed, accurate answer based on the context above.`;\n\nreturn [\n  {\n    json: {\n      query: query,\n      context: context,\n      systemPrompt: systemPrompt,\n      userPrompt: userPrompt,\n      chunks_retrieved: chunks.length\n    }\n  }\n];"
+      },
+      "id": "format-context",
+      "name": "Format Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 400],
+      "notes": "Combine retrieved chunks into LLM prompt"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:latest",
+        "options": {
+          "baseUrl": "={{ $env.OLLAMA_API_URL || 'http://localhost:11434' }}",
+          "temperature": 0.7,
+          "topP": 0.9
+        },
+        "prompt": "={{ $json.userPrompt }}",
+        "systemMessage": "={{ $json.systemPrompt }}"
+      },
+      "id": "ollama-chat",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [1120, 400],
+      "notes": "Generate answer using Ollama llama3.2:latest"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract generated response\nconst ollamaResponse = $json.response || $json.output || $json.text;\nconst contextData = $node['Format Context'].json;\n\nreturn [\n  {\n    json: {\n      answer: ollamaResponse,\n      query: contextData.query,\n      chunks_used: contextData.chunks_retrieved,\n      model: 'llama3.2:latest',\n      embedding_model: 'nomic-embed-text',\n      timestamp: new Date().toISOString()\n    }\n  }\n];"
+      },
+      "id": "format-response",
+      "name": "Format Final Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 400],
+      "notes": "Structure JSON response for Streamlit"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1560, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Query": {
+      "main": [
+        [
+          {
+            "node": "Embeddings Ollama - Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama - Query": {
+      "main": [
+        [
+          {
+            "node": "Postgres Vector Store - Retrieve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Vector Store - Retrieve": {
+      "main": [
+        [
+          {
+            "node": "Format Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Context": {
+      "main": [
+        [
+          {
+            "node": "Ollama Chat Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "main": [
+        [
+          {
+            "node": "Format Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Final Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "RAG",
+      "id": "rag"
+    },
+    {
+      "name": "Query",
+      "id": "query"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "cv-rag-query"
+  },
+  "pinData": {},
+  "versionId": "1.0.0"
+}
