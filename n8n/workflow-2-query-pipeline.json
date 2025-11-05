@@ -3,16 +3,17 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## CV-RAG: Query Pipeline\n\nBased on n8n RAG template",
-        "height": 400,
-        "width": 800,
-        "color": 4
+        "httpMethod": "POST",
+        "path": "cv-rag-query",
+        "responseMode": "responseNode",
+        "options": {}
       },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [240, -200],
-      "typeVersion": 1,
-      "id": "sticky-note",
-      "name": "Sticky Note"
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [700, -80],
+      "id": "webhook-trigger",
+      "name": "Webhook (for Streamlit)",
+      "webhookId": "cv-rag-query-webhook"
     },
     {
       "parameters": {
@@ -24,6 +25,17 @@
       "id": "chat-trigger",
       "name": "When chat message received",
       "webhookId": "cv-rag-chat"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"answer\": $json.output } }}"
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1140, -80],
+      "id": "respond-to-webhook",
+      "name": "Respond to Webhook"
     },
     {
       "parameters": {
@@ -99,10 +111,28 @@
     }
   ],
   "connections": {
+    "Webhook (for Streamlit)": {
+      "main": [[
+        {
+          "node": "AI Agent",
+          "type": "main",
+          "index": 0
+        }
+      ]]
+    },
     "When chat message received": {
       "main": [[
         {
           "node": "AI Agent",
+          "type": "main",
+          "index": 0
+        }
+      ]]
+    },
+    "AI Agent": {
+      "main": [[
+        {
+          "node": "Respond to Webhook",
           "type": "main",
           "index": 0
         }
