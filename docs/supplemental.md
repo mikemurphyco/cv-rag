@@ -158,7 +158,7 @@ Tools I actively use to build, teach, and experiment:
 
 - **Total # of Walking Days**: 39 days
 
-- **Total Number of Steps:** 462,154 steps 
+- **Total Number of Steps:** 1,462,154 steps 
 
 - **Total Distance Walked (mi):** 654.3 miles (1052.6 km)
 
