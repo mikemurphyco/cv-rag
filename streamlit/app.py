@@ -142,7 +142,8 @@ def main():
     )
 
     # Search button
-    if st.button("= Ask", type="primary", use_container_width=True):
+    if st.button("🔍 Ask", type="primary", use_container_width=True):
+ Ask", type="primary", use_container_width=True):
         if user_question:
             with st.spinner("> Thinking..."):
                 result = query_resume(user_question, webhook_url)
