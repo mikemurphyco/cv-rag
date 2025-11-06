@@ -28,7 +28,21 @@ The app accepts questions but doesn't return answers. This is because:
 
 2. **Configure Postgres Credential in n8n**
    - Credential name: "Postgres account"
-   - Connection string: From `.env` → `NEON_CONNECTION_STRING`
+   - **IMPORTANT**: Do NOT paste the full connection string! Parse it manually:
+
+   From this `.env` connection string:
+   ```
+   postgresql://neondb_owner:npg_2r6yhKmZEPfk@ep-holy-glitter-adq7h6qu-pooler.c-2.us-east-1.aws.neon.tech/mm_content_factory?sslmode=require
+   ```
+
+   Fill in n8n Postgres credential fields:
+   - **Host**: `ep-holy-glitter-adq7h6qu-pooler.c-2.us-east-1.aws.neon.tech` (only the hostname part)
+   - **Database**: `mm_content_factory`
+   - **User**: `neondb_owner`
+   - **Password**: `npg_2r6yhKmZEPfk`
+   - **Port**: `5432` (default)
+   - **SSL**: `require` (enable SSL/TLS)
+
    - Test connection to ensure it works
 
 3. **Configure Ollama Credential in n8n**
