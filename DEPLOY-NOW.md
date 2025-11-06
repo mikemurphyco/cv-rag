@@ -17,7 +17,30 @@ mkdir -p /cv-rag && cd /cv-rag
 git clone https://github.com/mikemurphyco/cv-rag.git .
 ```
 
-### 2. Configure
+### 2. Create Streamlit Config Directory
+
+```bash
+# Create .streamlit directory for config
+mkdir -p /cv-rag/streamlit/.streamlit
+
+# Create Streamlit configuration file
+cat > /cv-rag/streamlit/.streamlit/config.toml << 'EOF'
+[theme]
+primaryColor = "#FF6B6B"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#262730"
+textColor = "#FAFAFA"
+font = "sans serif"
+
+[server]
+headless = true
+port = 8501
+enableCORS = true
+enableXsrfProtection = true
+EOF
+```
+
+### 3. Configure Environment
 
 ```bash
 cp .env.example .env
@@ -25,13 +48,13 @@ nano .env
 # Update N8N_WEBHOOK_URL and NEON_CONNECTION_STRING
 ```
 
-### 3. Deploy
+### 4. Deploy
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-### 4. Import Workflows
+### 5. Import Workflows
 
 1. Visit `https://flow.imurph.com`
 2. Import both workflow JSON files from `n8n/` folder
@@ -40,18 +63,18 @@ docker-compose up -d
 5. Activate workflows
 6. Copy webhook URL
 
-### 5. Update & Restart
+### 6. Update & Restart
 
 ```bash
 nano .env  # Add webhook URL
-docker-compose restart streamlit
+docker compose restart streamlit
 ```
 
-### 6. Add DNS
+### 7. Add DNS
 
 Point `chat.imurph.com` to your VPS IP
 
-### 7. Test
+### 8. Test
 
 Visit: `https://chat.imurph.com`
 
