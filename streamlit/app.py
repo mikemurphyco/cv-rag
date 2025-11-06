@@ -57,7 +57,7 @@ def query_resume(question: str, webhook_url: str) -> dict:
     try:
         response = requests.post(
             webhook_url,
-            json={'query': question},
+            json={'chatInput': question},
             timeout=30
         )
         if response.status_code == 200:
