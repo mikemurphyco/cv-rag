@@ -85,7 +85,7 @@ def main():
     """
     # Header
     st.markdown('<div class="main-header">', unsafe_allow_html=True)
-    st.title("> Ask My AI Resume Anything")
+    st.title("💬 Ask My AI Resume Anything")
     st.markdown("**Chat with Mike Murphy's Experience Using RAG + LLM**")
     st.markdown('</div>', unsafe_allow_html=True)
 
