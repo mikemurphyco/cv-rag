@@ -1,10 +1,10 @@
 {
-  "name": "CV-RAG #2: Query-Pipeline",
+  "name": "CV-RAG #2: Query-Pipeline (v2.1)",
   "nodes": [
     {
       "parameters": {
         "public": true,
-        "initialMessages": "Hi there! 👋\nMy name is Mike Murphy. Ask my resume anything!",
+        "initialMessages": "Hi there! \ud83d\udc4b\nMy name is Mike Murphy. Ask my resume anything!",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
@@ -20,9 +20,9 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $json.chatInput }}",
+        "text": "={{ $json.body.chatInput }}",
         "options": {
-          "systemMessage": "You are an AI assistant helping users learn about Mike Murphy. Use the query_knowledge_base tool to search his resume, work experience, skills, education, projects, and personal accomplishments. ALWAYS use the tool to find information before answering. Provide specific, detailed answers based on the retrieved context."
+          "systemMessage": "You are an AI assistant that ONLY answers questions about Mike Murphy using information from his resume database.\n\nCRITICAL RULES:\n1. You MUST use the query_knowledge_base tool for EVERY question\n2. NEVER answer from your general knowledge\n3. If the tool returns no results, say \"I don't have that information in Mike's resume\"\n4. Base your answers ONLY on the retrieved context\n5. If asked about education, use the tool to find degree information\n\nFormat: Use the tool first, then answer based only on what it returns."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -116,7 +116,7 @@
     },
     {
       "parameters": {
-        "model": "llama3.2:1b",
+        "model": "llama3.2:latest",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
@@ -208,12 +208,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "46726a53-6bc2-4a7b-a6e4-ca3fda1f8d6f",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "7a3f4b30d139bb4d4da62ccf6bec8aefe503a6057c743693063b0411d7afe9d0"
   },
-  "id": "CcVOyd9OZRTOKrZR",
   "tags": [
     {
       "updatedAt": "2025-11-05T20:36:10.321Z",

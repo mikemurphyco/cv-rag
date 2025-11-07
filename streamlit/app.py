@@ -58,7 +58,7 @@ def query_resume(question: str, webhook_url: str) -> dict:
         response = requests.post(
             webhook_url,
             json={'chatInput': question},
-            timeout=30
+            timeout=60
         )
         if response.status_code == 200:
             return response.json()
@@ -99,7 +99,7 @@ def main():
 
     # Sidebar with info and sample questions
     with st.sidebar:
-        st.header("=� About This Project")
+        st.header("📊 About This Project")
         st.markdown("""
         This is an AI-powered resume built using:
         - **RAG** (Retrieval-Augmented Generation)
@@ -113,7 +113,7 @@ def main():
 
         st.divider()
 
-        st.header("=� Sample Questions")
+        st.header("💡 Sample Questions")
         st.markdown("Click a question below to try it:")
 
         sample_questions = [
@@ -127,24 +127,27 @@ def main():
 
         selected_question = None
         for i, question in enumerate(sample_questions):
-            if st.button(f"=� {question}", key=f"sample_{i}", use_container_width=True):
+            if st.button(f"💬 {question}", key=f"sample_{i}", use_container_width=True):
                 selected_question = question
 
     # Main chat interface
     st.divider()
 
-    # User input
-    user_question = st.text_input(
-        "Ask a question about Mike's experience:",
-        value=selected_question if selected_question else "",
-        placeholder="e.g., What's Mike's experience with AI?",
-        key="user_input"
-    )
+    # Use a form to enable Enter key submission
+    with st.form(key="question_form", clear_on_submit=False):
+        user_question = st.text_input(
+            "Ask a question about Mike's experience:",
+            value=selected_question if selected_question else "",
+            placeholder="e.g., What's Mike's experience with AI?",
+            key="user_input"
+        )
 
-    # Search button
-    if st.button("🔍 Ask", type="primary", use_container_width=True):
+        # Search button
+        submit_button = st.form_submit_button("🔍 Ask", type="primary", use_container_width=True)
+
+    if submit_button:
         if user_question:
-            with st.spinner("> Thinking..."):
+            with st.spinner("🤔 AI is searching through Mike's resume and generating an answer... This may take 20-30 seconds."):
                 result = query_resume(user_question, webhook_url)
 
                 if result.get('error'):
@@ -155,14 +158,14 @@ def main():
 
                     # Show sources if available
                     if 'sources' in result:
-                        with st.expander("=� View Sources"):
+                        with st.expander("📚 View Sources"):
                             st.write(result['sources'])
         else:
             st.warning("Please enter a question or click a sample question.")
 
     # Download section
     st.divider()
-    st.subheader("=� Download Resume Materials")
+    st.subheader("📥 Download Resume Materials")
 
     col1, col2 = st.columns(2)
 
@@ -172,21 +175,21 @@ def main():
         if resume_pdf_path.exists():
             with open(resume_pdf_path, "rb") as pdf_file:
                 st.download_button(
-                    label="=� Download Resume (PDF)",
+                    label="📄 Download Resume (PDF)",
                     data=pdf_file,
                     file_name="Mike_Murphy_Resume.pdf",
                     mime="application/pdf",
                     use_container_width=True
                 )
         else:
-            st.info("=� PDF resume coming soon")
+            st.info("📄 PDF resume coming soon")
 
     with col2:
         cover_letter_path = Path(__file__).parent.parent / "docs" / "cover-letter_template.md"
         if cover_letter_path.exists():
             with open(cover_letter_path, "r") as cover_file:
                 st.download_button(
-                    label="=� Download Cover Letter",
+                    label="📝 Download Cover Letter",
                     data=cover_file.read(),
                     file_name="Mike_Murphy_Cover_Letter.md",
                     mime="text/markdown",
@@ -202,8 +205,8 @@ def main():
 
         < [mikemurphy.co](https://mikemurphy.co) |
         = [LinkedIn](https://linkedin.com/in/mikemurphyco) |
-        =� [YouTube](https://youtube.com/@mikemurphyco) |
-        =� [GitHub](https://github.com/mikemurphyco)
+        📺 [YouTube](https://youtube.com/@mikemurphyco) |
+        💻 [GitHub](https://github.com/mikemurphyco)
 
         *Built with Claude Code, n8n, PostgreSQL, Ollama, and Streamlit*
     """)
