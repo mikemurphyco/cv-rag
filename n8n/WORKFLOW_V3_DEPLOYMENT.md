@@ -55,9 +55,10 @@
 - Model: `nomic-embed-text:latest`
 
 **Call Ollama API:**
-- URL: `http://158.220.127.4:11434/api/chat` (update if your VPS IP changed)
+- URL: `http://ollama:11434/api/chat` (internal Docker network URL)
 - Method: POST
 - Timeout: 60000ms (60 seconds)
+- **Note:** Uses Docker network name `ollama` since n8n and Ollama are on shared `app-net` network
 
 ### 3. Test the Workflow
 
@@ -122,19 +123,16 @@ Once v3.0 is working:
 
 ### Issue: Ollama timeout
 - Increase timeout in "Call Ollama API" node (try 90000ms)
-- Check Ollama is running: `ssh root@158.220.127.4 "curl http://localhost:11434/api/tags"`
-- Verify VPS IP is correct in HTTP Request URL
+- Check Ollama is running on VPS: `docker ps | grep ollama`
+- Verify Docker network: `docker network inspect app-net` (both n8n and ollama should be listed)
+- Test from n8n container: `docker exec -it <n8n-container> curl http://ollama:11434/api/tags`
 
 ### Issue: Empty answer returned
 - Check "Format Response" node execution output
 - Verify Ollama response structure: Should be `{message: {content: "..."}}`
-- Test Ollama directly:
+- Test Ollama directly from within n8n container:
   ```bash
-  curl http://158.220.127.4:11434/api/chat -d '{
-    "model": "llama3.2:latest",
-    "messages": [{"role": "user", "content": "test"}],
-    "stream": false
-  }'
+  docker exec -it <n8n-container-name> sh -c 'curl http://ollama:11434/api/chat -d "{\"model\": \"llama3.2:latest\", \"messages\": [{\"role\": \"user\", \"content\": \"test\"}], \"stream\": false}"'
   ```
 
 ### Issue: Webhook returns 404

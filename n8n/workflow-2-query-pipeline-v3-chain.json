@@ -82,7 +82,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://158.220.127.4:11434/api/chat",
+        "url": "http://ollama:11434/api/chat",
         "authentication": "none",
         "sendBody": true,
         "specifyBody": "json",
