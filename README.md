@@ -98,16 +98,21 @@ cv-rag/
 │
 ├── n8n/                        # n8n workflows (import these!)
 │   ├── workflow-1-document-ingestion.json  # Ingest & chunk docs
-│   ├── workflow-2-query-pipeline.json      # Handle queries
-│   ├── N8N_NATIVE_SETUP.md                 # 👈 START HERE
-│   └── ARCHITECTURE.md                     # Technical deep dive
+│   ├── workflow-2-query-pipeline.json      # Handle queries (production)
+│   ├── README.md                           # 👈 START HERE - Complete setup guide
+│   └── archive/                            # Older workflow versions
 │
 ├── streamlit/                  # Frontend application
-│   ├── app.py                  # Main Streamlit app
-│   └── DEPLOYMENT.md           # Deployment guide
+│   └── app.py                  # Main Streamlit app
 │
-└── scripts/                    # Testing utilities
-    └── test_workflow.py        # End-to-end workflow tests
+├── scripts/                    # Testing & utilities
+│   ├── test_workflow.py        # End-to-end workflow tests
+│   ├── clean_database.py       # Database reset utility
+│   └── test_ollama_models.sh   # Ollama model testing
+│
+└── archive/                    # Deprecated files (for reference)
+    ├── scripts/                # Old Python-based approach
+    └── *.md                    # Development notes
 ```
 
 ---
@@ -153,7 +158,7 @@ curl -X POST https://your-n8n.com/webhook/cv-rag-query \
   -d '{"query": "What programming languages does Mike know?"}'
 ```
 
-**📖 Full setup guide:** See `n8n/N8N_NATIVE_SETUP.md` for detailed step-by-step instructions.
+**📖 Full setup guide:** See [n8n/README.md](n8n/README.md) for detailed step-by-step instructions.
 
 ---
 
@@ -180,7 +185,7 @@ pip install -r requirements.txt
 streamlit run streamlit/app.py
 ```
 
-**Deploy to production:** See `streamlit/DEPLOYMENT.md`
+**Deploy to production:** See [Streamlit Cloud documentation](https://docs.streamlit.io/streamlit-community-cloud/deploy-your-app)
 
 ---
 
@@ -305,9 +310,9 @@ EMBEDDING_MODEL=nomic-embed-text
 ## 🐛 **Troubleshooting**
 
 See detailed troubleshooting in:
-- `n8n/N8N_NATIVE_SETUP.md` - Workflow issues
-- `streamlit/DEPLOYMENT.md` - Frontend issues
-- `CLAUDE.md` - General project issues
+- [n8n/README.md](n8n/README.md) - Workflow setup and issues
+- [QUICKSTART.md](QUICKSTART.md) - Quick setup issues
+- [CLAUDE.md](CLAUDE.md) - Complete project documentation
 
 **Common Issues:**
 
@@ -322,11 +327,11 @@ See detailed troubleshooting in:
 
 ## 📝 **Documentation**
 
-- **`CLAUDE.md`** - Complete project documentation
-- **`n8n/N8N_NATIVE_SETUP.md`** - Workflow setup guide (START HERE)
-- **`n8n/ARCHITECTURE.md`** - Technical architecture deep dive
-- **`streamlit/DEPLOYMENT.md`** - Streamlit deployment guide
-- **`.env.example`** - Environment variables template
+- **[README.md](README.md)** - This file - Portfolio overview (START HERE)
+- **[n8n/README.md](n8n/README.md)** - Complete n8n workflow setup guide
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick setup guide
+- **[CLAUDE.md](CLAUDE.md)** - Detailed technical documentation
+- **[.env.example](.env.example)** - Environment variables template
 
 ---
 

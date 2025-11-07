@@ -1,10 +1,10 @@
 {
-  "name": "CV-RAG #2: Query-Pipeline (v2.1)",
+  "name": "CV-RAG #2: Query-Pipeline (v2.2 - Tuned)",
   "nodes": [
     {
       "parameters": {
         "public": true,
-        "initialMessages": "Hi there! \ud83d\udc4b\nMy name is Mike Murphy. Ask my resume anything!",
+        "initialMessages": "Hi there! 👋\nMy name is Mike Murphy. Ask my resume anything!",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
@@ -22,7 +22,7 @@
         "promptType": "define",
         "text": "={{ $json.body.chatInput }}",
         "options": {
-          "systemMessage": "You are an AI assistant that ONLY answers questions about Mike Murphy using information from his resume database.\n\nCRITICAL RULES:\n1. You MUST use the query_knowledge_base tool for EVERY question\n2. NEVER answer from your general knowledge\n3. If the tool returns no results, say \"I don't have that information in Mike's resume\"\n4. Base your answers ONLY on the retrieved context\n5. If asked about education, use the tool to find degree information\n\nFormat: Use the tool first, then answer based only on what it returns."
+          "systemMessage": "You are an AI assistant that answers questions about Mike Murphy using his resume and personal background materials.\n\nWORKFLOW:\n1. Use the query_knowledge_base tool to search the database\n2. Read the retrieved information carefully\n3. Answer the user's question based ONLY on what the tool returned\n4. If the tool returns no relevant information, say \"I don't have that information about Mike\"\n\nThe database includes:\n- Professional experience, skills, and projects\n- Tutorial series and courses Mike has created\n- Personal interests and fun facts\n- Background stories and accomplishments\n\nIMPORTANT: Always provide a complete answer in natural language. Never return tool names or JSON."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -54,7 +54,7 @@
     {
       "parameters": {
         "mode": "retrieve-as-tool",
-        "toolDescription": "Search Mike Murphy's resume, work experience, skills, education, projects, tutorials, courses, and personal accomplishments (including Camino de Santiago journey). Use this tool to answer ANY question about Mike's professional or personal background.",
+        "toolDescription": "Search Mike Murphy's resume and personal background database for relevant information.",
         "tableName": "cv_chunks",
         "topK": 5,
         "options": {
@@ -117,7 +117,10 @@
     {
       "parameters": {
         "model": "llama3.2:latest",
-        "options": {}
+        "options": {
+          "temperature": 0.3,
+          "topP": 0.9
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
@@ -204,7 +207,7 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1"
   },

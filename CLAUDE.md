@@ -43,10 +43,14 @@ CV-RAG is an interactive Retrieval-Augmented Generation (RAG) system for Mike Mu
 ### Key Components
 
 **scripts/**
-- ~~`chunker.py`~~: (Deprecated - now handled by n8n Text Splitter node)
-- ~~`embedder.py`~~: (Deprecated - now handled by n8n Embeddings Ollama node)
-- ~~`embedding_service.py`~~: (Deprecated - n8n calls Ollama directly)
 - `test_workflow.py`: Test suite for the n8n RAG pipeline
+- `clean_database.py`: Utility to reset database during development
+- `test_ollama_models.sh`: Tests Ollama model availability
+- `check_ollama_status.sh`: Checks Ollama service status
+
+**archive/** (deprecated files for reference)
+- `archive/scripts/`: Old Python-based chunking/embedding scripts
+- `archive/*.md`: Development notes and deployment experiments
 
 **streamlit/**
 - `app.py`: Chat interface with sample questions and resume download link
@@ -229,13 +233,27 @@ The project follows a 5-phase roadmap (see sandbox/roadmap.md):
 
 ## Files Reference
 
-- `n8n/README.md` - **START HERE** - Complete n8n-native setup guide
-- `n8n/workflow-1-document-ingestion.json` - Import this into n8n
-- `n8n/workflow-2-query-pipeline.json` - Import this into n8n
-- `n8n/archive/` - Old Python-based approach (deprecated)
+**Core Files:**
+- `README.md` - Main portfolio README (start here for overview)
+- `QUICKSTART.md` - Quick setup guide for getting the system running
+- `CLAUDE.md` - This file - detailed project documentation for AI assistants
 - `.env.example` - Template for environment variables
 - `requirements.txt` - Minimal dependencies (mostly Streamlit)
-- `.gitignore` - Protects secrets and generated data files
+
+**n8n Workflows:**
+- `n8n/README.md` - **Detailed n8n setup guide**
+- `n8n/workflow-1-document-ingestion.json` - Document ingestion workflow
+- `n8n/workflow-2-query-pipeline.json` - Query handling workflow (production version)
+- `n8n/archive/` - Older workflow versions for reference
+
+**Scripts & Testing:**
+- `scripts/test_workflow.py` - End-to-end workflow testing
+- `scripts/clean_database.py` - Database reset utility
+- `scripts/test_ollama_models.sh` - Ollama model tests
+- `scripts/check_ollama_status.sh` - Ollama service status
+
+**Archive:**
+- `archive/` - Deprecated files kept for reference (old Python scripts, deployment experiments)
 
 ## Next Steps After Setup
 
