@@ -269,10 +269,12 @@ git pull origin main
 cp docker-compose.yml.production docker-compose.yml
 cp .env.production .env
 
-# Rebuild and restart
-docker-compose down
-docker-compose up -d --build
+# Rebuild and restart (using Docker Compose V2)
+docker compose down
+docker compose up -d --build
 ```
+
+**Note:** VPS uses Docker Compose V2 (plugin), so commands are `docker compose` (no hyphen), not `docker-compose`.
 
 **Why docker-compose.yml is not in repo:**
 - Contains deployment-specific Traefik labels and network configuration
