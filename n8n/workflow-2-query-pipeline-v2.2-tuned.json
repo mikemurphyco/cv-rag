@@ -83,7 +83,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ { \"answer\": $json.output || $json.text || \"No answer generated\" } }}",
+        "responseBody": "={{ { \"answer\": $json.output } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",

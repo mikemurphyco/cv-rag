@@ -87,24 +87,18 @@ Search Mike Murphy's resume and personal background database for relevant inform
 - Agent doesn't need exhaustive details about what's in the database
 - Reduces tokens in agent's context window
 
-### 4. **Added Response Fallback Handling**
+### 4. **Response Body (No Change)**
 
-**What changed:** Better error handling in webhook response
+**Kept the same:** Simple, direct response formatting
 
-**Old (v2.1):**
 ```
 {{ { "answer": $json.output } }}
 ```
 
-**New (v2.2):**
-```
-{{ { "answer": $json.output || $json.text || "No answer generated" } }}
-```
-
-**Why this helps:**
-- If `output` field is missing (like when tool JSON is returned), tries `text` field
-- Falls back to clear error message instead of undefined
-- Graceful degradation instead of errors
+**Why we keep it simple:**
+- The other 3 fixes should prevent the agent from returning tool JSON
+- If $json.output is missing, it will be undefined (which is fine - indicates a real problem to debug)
+- Overly complex fallback handling can mask underlying issues
 
 ## Deployment Steps
 
