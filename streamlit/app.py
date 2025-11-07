@@ -203,8 +203,8 @@ def main():
     st.markdown("""
         **Mike Murphy** | AI Educator & Technical Content Creator
 
-        < [mikemurphy.co](https://mikemurphy.co) |
-        = [LinkedIn](https://linkedin.com/in/mikemurphyco) |
+        🌐 [mikemurphy.co](https://mikemurphy.co) |
+        💼 [LinkedIn](https://linkedin.com/in/mikemurphyco) |
         📺 [YouTube](https://youtube.com/@mikemurphyco) |
         💻 [GitHub](https://github.com/mikemurphyco)
 
