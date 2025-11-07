@@ -157,6 +157,63 @@ If v3.0 has issues:
 3. Update .env back to old webhook URL
 4. Report issue on GitHub
 
+## Changing Models
+
+### Changing the Chat Model (LLM)
+
+To use a different Ollama model for generating answers:
+
+1. **Pull the model on your VPS** (if not already available):
+   ```bash
+   ssh root@your-vps
+   docker exec -it ollama ollama pull llama3.1:latest
+   # or: mistral:latest, qwen2.5:latest, etc.
+   ```
+
+2. **Edit the "Format Context" node** in n8n:
+   - Click the **"Format Context"** code node
+   - Find the line: `model: "llama3.2:latest",`
+   - Change to your desired model: `model: "llama3.1:latest",`
+   - Click **Save**
+
+3. **Test the workflow** to ensure the new model works
+
+**Popular alternatives:**
+- `llama3.1:latest` (8B - better quality, slower)
+- `mistral:latest` (7B - good balance)
+- `qwen2.5:latest` (various sizes)
+- `gemma2:latest` (2B/9B - Google's model)
+
+### Changing the Embedding Model
+
+⚠️ **Warning:** Changing the embedding model requires re-ingesting all documents!
+
+1. **Pull the new embedding model**:
+   ```bash
+   docker exec -it ollama ollama pull mxbai-embed-large:latest
+   ```
+
+2. **Update Workflow 1 (Ingestion)**:
+   - Open "CV-RAG #1: Ingestion-Workflow"
+   - Click **"Embeddings Ollama"** node
+   - Change **Model** to new embedding model
+   - Save workflow
+
+3. **Update Workflow 2/3 (Query)**:
+   - Open your query workflow
+   - Click **"Embeddings Ollama"** node
+   - Change **Model** to **same** embedding model
+   - Save workflow
+
+4. **Clear and re-ingest documents**:
+   ```sql
+   -- Clear old embeddings
+   TRUNCATE TABLE cv_chunks;
+   ```
+   Then re-run Workflow 1 to ingest documents with new embeddings
+
+**Why?** Different embedding models create different vector spaces. Queries and documents must use the same model or searches won't find relevant results.
+
 ## Next Steps (Optional)
 
 **Add Memory for Multi-Turn Conversations:**
