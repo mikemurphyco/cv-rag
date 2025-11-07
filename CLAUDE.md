@@ -221,6 +221,64 @@ The project follows a 5-phase roadmap (see sandbox/roadmap.md):
 
 **No manual SQL needed** - the Postgres Vector Store node handles all vector operations!
 
+## Production Deployment (VPS)
+
+**Mike's production environment runs on Hostinger VPS with 3 Docker Compose projects:**
+
+### Architecture Overview
+```
+app-net (shared Docker network)
+├── n8n + Traefik (flow.imurph.com) - n8n workflows with SSL termination
+├── Ollama (internal only) - LLM + embedding models
+└── cv-rag-streamlit (chat.imurph.com) - Streamlit frontend with SSL
+```
+
+### Docker Compose Projects
+
+**1. n8n** (at `/root/n8n/docker-compose.yml`)
+- Traefik reverse proxy (ports 80/443, SSL with Let's Encrypt)
+- n8n workflow engine at `https://flow.imurph.com`
+- Both services connected to `app-net` network
+
+**2. Ollama** (at `/root/ollama/docker-compose.yml`)
+- Ollama container (internal only, no public ports)
+- Models: `nomic-embed-text`, `llama3.2:latest`
+- Connected to `app-net` network
+- Accessible by n8n at `http://ollama:11434`
+
+**3. cv-rag** (at `/root/cv-rag/docker-compose.yml`)
+- Streamlit container at `https://chat.imurph.com`
+- Uses Traefik labels for SSL termination
+- Connects to n8n webhooks for RAG queries
+- Mounts `./docs` and `./streamlit/app.py` as read-only volumes
+
+### Updating Production
+
+**When pulling repo updates to VPS:**
+```bash
+# Preserve production docker-compose.yml (it's deployment-specific)
+cd /root/cv-rag
+cp docker-compose.yml docker-compose.yml.production
+cp .env .env.production
+
+# Pull updates
+git stash
+git pull origin main
+
+# Restore production configs
+cp docker-compose.yml.production docker-compose.yml
+cp .env.production .env
+
+# Rebuild and restart
+docker-compose down
+docker-compose up -d --build
+```
+
+**Why docker-compose.yml is not in repo:**
+- Contains deployment-specific Traefik labels and network configuration
+- Each deployment (VPS vs Streamlit Cloud) has different infrastructure needs
+- VPS version is preserved locally and not version controlled
+
 ## Important Notes
 
 - **Security**: `.env` file is gitignored - never commit secrets
@@ -230,6 +288,10 @@ The project follows a 5-phase roadmap (see sandbox/roadmap.md):
 - **n8n Workflows**: Two separate workflows for ingestion and querying
 - **Ollama Models**: Both `nomic-embed-text` and `llama3.2:latest` must be installed on VPS
 - **Setup Guide**: See `n8n/README.md` for complete n8n-native setup instructions
+- **Production URLs**:
+  - n8n: https://flow.imurph.com
+  - Streamlit: https://chat.imurph.com
+  - Ollama: Internal only (http://ollama:11434 from n8n)
 
 ## Files Reference
 
