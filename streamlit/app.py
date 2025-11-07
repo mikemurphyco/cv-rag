@@ -97,6 +97,10 @@ def main():
         st.info("Please set up your n8n workflow and add the webhook URL to .env")
         return
 
+    # Initialize session state for selected question
+    if 'selected_question' not in st.session_state:
+        st.session_state.selected_question = ""
+
     # Sidebar with info and sample questions
     with st.sidebar:
         st.header("📊 About This Project")
@@ -125,10 +129,9 @@ def main():
             "Why should I hire Mike as an AI educator?"
         ]
 
-        selected_question = None
         for i, question in enumerate(sample_questions):
             if st.button(f"💬 {question}", key=f"sample_{i}", use_container_width=True):
-                selected_question = question
+                st.session_state.selected_question = question
 
     # Main chat interface
     st.divider()
@@ -137,7 +140,7 @@ def main():
     with st.form(key="question_form", clear_on_submit=False):
         user_question = st.text_input(
             "Ask a question about Mike's experience:",
-            value=selected_question if selected_question else "",
+            value=st.session_state.selected_question,
             placeholder="e.g., What's Mike's experience with AI?",
             key="user_input"
         )
@@ -147,6 +150,9 @@ def main():
 
     if submit_button:
         if user_question:
+            # Clear the session state after capturing the question
+            st.session_state.selected_question = ""
+
             with st.spinner("🤔 AI is searching through Mike's resume and generating an answer... This may take 20-30 seconds."):
                 result = query_resume(user_question, webhook_url)
 
