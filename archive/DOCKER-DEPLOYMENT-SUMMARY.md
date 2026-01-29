@@ -264,5 +264,5 @@ See **[TRAEFIK-SETUP.md](TRAEFIK-SETUP.md)** for step-by-step deployment instruc
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Comprehensive deployment guide
 - **[TRANSFER.md](TRANSFER.md)** - File transfer methods
 - **[TRAEFIK-SETUP.md](TRAEFIK-SETUP.md)** - Traefik-specific guide
-- **[CLAUDE.md](CLAUDE.md)** - Project documentation
+- **[CLAUDE.md](System/Claude/CLAUDE.md)** - Project documentation
 - **[n8n/README.md](n8n/README.md)** - n8n workflow setup

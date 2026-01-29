@@ -35,8 +35,7 @@
               "title": "supplemental"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -184,8 +183,9 @@
       "bases:Create new base": false
     }
   },
-  "active": "a14ed73cd91b4179",
+  "active": "40eaaac24682187a",
   "lastOpenFiles": [
+    "docs/supplemental.md",
     "docs/OLLAMA_SETUP_DOCKER.md",
     "sandbox/python-cheatsheet_claude.md",
     "sandbox/python-cheatsheet.md",
@@ -223,7 +223,6 @@
     "scripts/chunker.py.md",
     "sandbox/cv-rag_notes.md",
     "docs/cover-letter_template.md",
-    "docs/supplemental.md",
     "README.md",
     "sandbox/New Python Project Checklist.md"
   ]

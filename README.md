@@ -312,7 +312,7 @@ EMBEDDING_MODEL=nomic-embed-text
 See detailed troubleshooting in:
 - [n8n/README.md](n8n/README.md) - Workflow setup and issues
 - [QUICKSTART.md](QUICKSTART.md) - Quick setup issues
-- [CLAUDE.md](CLAUDE.md) - Complete project documentation
+- [CLAUDE.md](Code/Projects/cv-rag/CLAUDE.md) - Complete project documentation
 
 **Common Issues:**
 
@@ -327,10 +327,10 @@ See detailed troubleshooting in:
 
 ## 📝 **Documentation**
 
-- **[README.md](README.md)** - This file - Portfolio overview (START HERE)
+- **[README.md](Code/Projects/cv-rag/README.md)** - This file - Portfolio overview (START HERE)
 - **[n8n/README.md](n8n/README.md)** - Complete n8n workflow setup guide
 - **[QUICKSTART.md](QUICKSTART.md)** - Quick setup guide
-- **[CLAUDE.md](CLAUDE.md)** - Detailed technical documentation
+- **[CLAUDE.md](Code/Projects/cv-rag/CLAUDE.md)** - Detailed technical documentation
 - **[.env.example](.env.example)** - Environment variables template
 
 ---

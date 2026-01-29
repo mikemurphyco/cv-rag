@@ -195,5 +195,5 @@ python scripts/clean_database.py
 
 **Need more help?**
 - **Detailed setup:** [n8n/README.md](n8n/README.md)
-- **Complete docs:** [CLAUDE.md](CLAUDE.md)
-- **Portfolio overview:** [README.md](README.md)
+- **Complete docs:** [CLAUDE.md](Code/Projects/cv-rag/CLAUDE.md)
+- **Portfolio overview:** [README.md](Code/Projects/cv-rag/README.md)

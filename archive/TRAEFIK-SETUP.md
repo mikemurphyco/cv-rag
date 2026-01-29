@@ -285,5 +285,5 @@ All services connect via the shared `app-net` Docker network for inter-service c
 
 - Main deployment guide: [DEPLOYMENT.md](DEPLOYMENT.md)
 - Transfer guide: [TRANSFER.md](TRANSFER.md)
-- Project docs: [CLAUDE.md](CLAUDE.md)
+- Project docs: [CLAUDE.md](System/Claude/CLAUDE.md)
 - n8n setup: [n8n/README.md](n8n/README.md)
