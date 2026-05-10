@@ -3,7 +3,7 @@
 
 Dear n8n Hiring Team,
 
-First, a genuine thank you. A couple months ago I received a swag box from n8n t-shirt, hat, the works) as a thank you for the n8n tutorials I've been making on YouTube. That gesture landed perfectly, and it told me something real about your team's culture. It's one of the reasons I'm applying with more than the usual amount of enthusiasm.
+First, a genuine thank you. A couple months ago I received a swag box from n8n (t-shirt, hat, the works) as a thank you for the n8n tutorials I've been making on YouTube. That gesture landed perfectly, and it told me something real about your team's culture. It's one of the reasons I'm applying with more than the usual amount of enthusiasm.
 
 I want to be the person who helps your users get unstuck.
 
